@@ -1,0 +1,114 @@
+# To configure packaging, take a look at this website:
+# http://www.cmake.org/Wiki/CMake:CPackConfiguration
+
+include(InstallRequiredSystemLibraries)
+
+set(CPACK_GENERATOR "TGZ;ZIP")
+
+# Description summary of a project 
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Ptex: Per-Face Texture Mapping for Production Rendering")
+
+# Package vendor name 
+set(CPACK_PACKAGE_VENDOR "Disney Enterprises, Inc.")
+
+# File used as a description of a project 
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/Description.txt")
+
+# License file for the project, used by the STGZ, NSIS, and PackageMaker generators.
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/doc/License.txt")
+
+# Package Major, Minor and Patch Version
+set(CPACK_PACKAGE_VERSION_MAJOR "${ptex_major}")
+set(CPACK_PACKAGE_VERSION_MINOR "${ptex_minor}")
+set(CPACK_PACKAGE_VERSION_PATCH "${ptex_patch}")
+
+# Package full version, used internally. 
+set(CPACK_PACKAGE_VERSION "${ptex_major}.${ptex_minor}.${ptex_patch}")
+
+# Installation directory on the target system 
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "Ptex ${ptex_major}.${ptex_minor}.${ptex_patch}")
+
+# Pattern of files in the source tree that won't be packaged
+set(CPACK_SOURCE_IGNORE_FILES "/\\\\.build/" "/\\\\.package/" "/\\\\.gitignore" "/\\\\.cpp" "/\\\\.git/" "\\\\.swp$" "\\\\.#" "/#" "~$")
+
+# Package file name without extension. Also a directory of installer
+set(debug_string "")
+if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
+	set(debug_string "-Debug")
+endif()
+if(PTEX_STATIC)
+	set(CPACK_PACKAGE_FILE_NAME "ptex-${ptex_major}.${ptex_minor}.${ptex_patch}-${CMAKE_SYSTEM_NAME}${debug_string}-Static")
+else()
+	set(CPACK_PACKAGE_FILE_NAME "ptex-${ptex_major}.${ptex_minor}.${ptex_patch}-${CMAKE_SYSTEM_NAME}${debug_string}")
+endif()
+
+# Registry key used when installing this project
+set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY ${CPACK_PACKAGE_FILE_NAME})
+
+# TODO: (kwk) Add more platforms here.
+if(WIN32 AND NOT UNIX)
+	set(CPACK_GENERATOR "${CPACK_GENERATOR};NSIS")
+
+	# There is a bug in NSI that does not handle full unix paths properly. Make
+	# sure there is at least one set of four (4) backlasshes.
+
+	# The icon file (.ico) for the generated install program. 
+	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\ptexlogo.ico")
+
+	# The icon file (.ico) for the generated uninstall program. 
+	set(CPACK_NSIS_MUI_UNIICON  "${CMAKE_CURRENT_SOURCE_DIR}\\\\ptexlogo.ico")
+
+	# A branding image that will be displayed inside the installer. 
+	set(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\ptexlogo_small.ico")
+
+	# If this is set to "ON", then an extra page will appear in the installer
+	# that will allow the user to choose whether the program directory should
+	# be added to the system PATH variable.   
+	set(CPACK_NSIS_MODIFY_PATH ON)
+
+	# Where to place Ptex in the Start Menu
+	set(CPACK_NSIS_DISPLAY_NAME "Ptex ${ptex_major}.${ptex_minor}.${ptex_patch}")
+
+	set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\ptxinfo${debug_suffix}.exe")
+
+	set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\ptex.us/")
+
+	set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.disneyanimation.com/library/ptex/")
+
+	set(CPACK_NSIS_CONTACT "ptexinfo@disneyanimation.com")
+  
+	# List of pairs of links and labels.
+	set(CPACK_NSIS_MENU_LINKS "doc\\\\apidocs/index.html" "Ptex API Documentation")
+elseif(UNIX AND NOT APPLE)
+    # Build debian package
+    set(CPACK_GENERATOR "${CPACK_GENERATOR};DEB")
+    
+    # The maintenainer informations 
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Konrad Wilhelm Kleine <konrad@konradwilhelm.de>")
+    
+    # Package short description
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Ptex: Per-Face Texture Mapping for Production Rendering")
+    
+    # Package description    
+    set(CPACK_PACKAGE_DESCRIPTION "Explicit parameterization of subdivision surfaces for texture mapping adds significant cost and complexity to film production. Most parameterization methods currently in use require setup effort, and none are completely general. We propose a new texture mapping method for Catmull-Clark subdivision surfaces that requires no explicit parameterization. Our method, Ptex, stores a separate texture per quad face of the subdivision control mesh, along with a novel per-face adjacency map, in a single texture file per surface. Ptex uses the adjacency data to perform seamless anisotropic filtering of multi-resolution textures across surfaces of arbitrary topology. Just as importantly, Ptex requires no manual setup and scales to models of arbitrary mesh complexity and texture detail. Ptex has been successfully used to texture all of the models in an animated theatrical short and is currently being applied to an entire animated feature. Ptex has eliminated UV assignment from our studio and significantly increased the efficiency of our pipeline.")
+    
+    # Package dependencies (use dpkg -s <packagename> to retrieve version)     
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "zlib1g (>= 1.1.2)")
+    
+    # This variable allow advanced user to add custom script to the control.tar.gz (inside the .deb archive)    
+    #set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "")    
+    
+    # Package section (see http://packages.debian.org/stable/)   
+    set(CPACK_DEBIAN_PACKAGE_SECTION "graphics")
+    
+    # Package version    
+    set(CPACK_DEBIAN_PACKAGE_VERSION  "${CPACK_PACKAGE_VERSION}+lenny1")   
+else()
+	#set(CPACK_STRIP_FILES "bin/ptxinfo")
+	#set(CPACK_SOURCE_STRIP_FILES "")
+endif()
+
+# List of pairs of executables and labels. Used by the NSIS generator to create Start Menu shortcuts. 
+set(CPACK_PACKAGE_EXECUTABLES "ptxinfo${debug_suffix}" "ptxinfo")
+
+include (CPack)

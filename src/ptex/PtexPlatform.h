@@ -76,7 +76,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 #include <assert.h>
 
 // missing functions on Windows
-#ifdef WINDOWS
+#if defined(WINDOWS) && !defined(__MINGW32__)
 #define snprintf sprintf_s
 #define strtok_r strtok_s
 typedef __int64 FilePos;

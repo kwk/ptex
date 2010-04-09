@@ -1,0 +1,17 @@
+PTEX SOFTWARE
+Copyright 2009 Disney Enterprises, Inc.  All rights reserved
+
+Explicit parameterization of subdivision surfaces for texture mapping adds
+significant cost and complexity to film production. Most parameterization
+methods currently in use require setup effort, and none are completely general.
+We propose a new texture mapping method for Catmull-Clark subdivision surfaces
+that requires no explicit parameterization. Our method, Ptex, stores a separate
+texture per quad face of the subdivision control mesh, along with a novel
+per-face adjacency map, in a single texture file per surface. Ptex uses the
+adjacency data to perform seamless anisotropic filtering of multi-resolution
+textures across surfaces of arbitrary topology. Just as importantly, Ptex
+requires no manual setup and scales to models of arbitrary mesh complexity and
+texture detail. Ptex has been successfully used to texture all of the models in
+an animated theatrical short and is currently being applied to an entire
+animated feature. Ptex has eliminated UV assignment from our studio and
+significantly increased the efficiency of our pipeline.

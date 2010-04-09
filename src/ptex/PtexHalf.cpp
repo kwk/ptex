@@ -39,6 +39,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 uint16_t PtexHalf::f2hTable[512];
 uint32_t PtexHalf::h2fTable[65536];
 
+PtexHalf::PtexHalf() {}
+PtexHalf::PtexHalf(float val) : bits(fromFloat(val)) {}
+PtexHalf::PtexHalf(double val) : bits(fromFloat(float(val))) {}
+PtexHalf::operator float() const { return toFloat(bits); }
+PtexHalf& PtexHalf::operator=(float val) { bits = fromFloat(val); return *this; }
+
 /** Table initializations. */
 static bool PtexHalfInit()
 {
@@ -82,6 +88,22 @@ static bool PtexHalfInit()
 
 static bool PtexHalfInitialized = PtexHalfInit();
 
+float PtexHalf::toFloat(uint16_t h)
+{
+    union { uint32_t i; float f; } u;
+    u.i = h2fTable[h];
+    return u.f;
+}
+
+uint16_t PtexHalf::fromFloat(float val)
+{
+    if (val==0) return 0;
+    union { uint32_t i; float f; } u;
+    u.f = val;
+    int e = f2hTable[(u.i>>23)&0x1ff];
+    if (e) return e + (((u.i&0x7fffff) + 0x1000) >> 13);
+    return fromFloat_except(u.i);
+}
 
 /** Handle exceptional cases for half-to-float conversion */
 uint16_t PtexHalf::fromFloat_except(uint32_t i)
